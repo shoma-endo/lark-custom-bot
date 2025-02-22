@@ -4,57 +4,57 @@ basekit.addAction({
   formItems: [
     {
       itemId: 'text',
-      label: '源文本',
+      label: '入力テキスト',
       required: true,
       component: Component.Input,
       componentProps: {
         mode: 'textarea',
-        placeholder: '请输入源文本或选择引用列',
+        placeholder: 'テキストを入力するか、参照列を選択してください',
       }
     },
     {
       itemId: 'transformType',
-      label: '转换类型',
+      label: '変換タイプ',
       required: true,
       component: Component.SingleSelect,
       componentProps: {
         options: [
           {
-            label: '转为大写',
+            label: '大文字に変換',
             value: 'toUpperCase',
           },
           {
-            label: '转为小写',
+            label: '小文字に変換',
             value: 'toLowerCase',
           },
         ]
       }
     }
   ],
-  // 定义运行逻辑
+  // 実行ロジックを定義
   execute: async function(args, context) {
-    // 从运行时入参 args 中读取实际的源文本 text 和转换类型 transformType
+    // 実行時のパラメータargsから入力テキストtextと変換タイプtransformTypeを取得
     const { text = '', transformType } = args;
-    // 根据转换类型将源文本做大小写转换
+    // 変換タイプに基づいて入力テキストを大文字/小文字に変換
     const outputText = transformType === 'toUpperCase'
       ? text.toUpperCase()
       : text.toLowerCase();
-    // 返回转换后的数据
+    // 変換後のテキストを返却
     return {
       text: outputText,
     };
   },
-  // 定义节点出参
+  // ノードの出力パラメータを定義
   resultType: {
-    // 声明返回为对象
+    // オブジェクトとして返却することを宣言
     type: ParamType.Object,
     properties: {
-        // 声明 text 属性
+        // textプロパティを宣言
         text: {
-          // 声明 text 字段类型为 string
+          // textフィールドの型をstringとして宣言
           type: ParamType.String,
-          // 声明在节点 UI 上展示的文案为「转换结果」
-          label: '转换结果',
+          // ノードUIに表示するラベルを「変換結果」として宣言
+          label: '変換結果',
         },
     }
   }
