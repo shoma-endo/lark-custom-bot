@@ -24,5 +24,17 @@
   },
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shoma-endo/lark-custom-bot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/shoma-endo/lark-custom-bot/issues"
+  },
+  "homepage": "https://github.com/shoma-endo/lark-custom-bot#readme"
 }
