@@ -219,12 +219,36 @@ const RenderFuncMap: Partial<
 
 /**
  * デフォルトのレンダリング関数
- * 値をそのまま表示
+ * 値を適切な形式で表示
  */
 const renderDefault =
   () =>
-  (...args: unknown[]) =>
-    <>{args[0]}</>;
+  (...args: unknown[]) => {
+    const value = args[0];
+    if (value === null || value === undefined) {
+      return <></>;
+    }
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+      return <>{String(value)}</>;
+    }
+    if (Array.isArray(value)) {
+      return <>{value.map(v => String(v)).join(', ')}</>;
+    }
+    if (typeof value === 'object') {
+      // オブジェクトの場合は適切なプロパティを表示
+      const obj = value as any;
+      if (obj.text) return <>{obj.text}</>;
+      if (obj.name) return <>{obj.name}</>;
+      if (obj.id) return <>{obj.id}</>;
+      if (obj.url) return <>{obj.url}</>;
+      // PDFファイルの場合はファイル名を表示
+      if (obj.type === 'application/pdf') {
+        return <>{obj.token}</>;
+      }
+      return <>{JSON.stringify(value)}</>;
+    }
+    return <>{String(value)}</>;
+  };
 
 /**
  * フィールドタイプに応じたレンダリング関数を取得

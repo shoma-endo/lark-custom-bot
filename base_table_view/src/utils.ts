@@ -12,13 +12,11 @@ import { getRenderFunc } from './render_helper';
 export const getTableData = async () => {
   // 現在選択中のテーブルIDを取得
   const selection = await bitable.base.getSelection();
-  // テーブル一覧を取得
-  const tableList = await bitable.base.getTableList();
-
   if (!selection.tableId) return null;
 
   // テーブルインスタンスを取得
   const table = await bitable.base.getTableById(selection.tableId);
+  console.log('table：', table);
 
   // ビュー一覧を取得し、最初のグリッドビューを選択
   const views = await table.getViewMetaList();
@@ -51,8 +49,16 @@ export const getTableData = async () => {
     return {
       title: meta.name,
       dataIndex: meta.id,
-      // セル値のレンダリング関数を取得
+      width: 200,  // 列幅を200pxに固定
+      ellipsis: true,  // 長いテキストを省略
       render: getRenderFunc({ meta, table }),
+      onCell: () => ({
+        style: {
+          whiteSpace: 'pre-wrap',  // テキストの改行を許可
+          wordBreak: 'break-all' as const,  // 長い単語の改行を許可
+          maxWidth: 200,  // 最大幅を設定
+        }
+      })
     };
   });
 
