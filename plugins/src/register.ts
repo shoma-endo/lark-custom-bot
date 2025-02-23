@@ -2,60 +2,173 @@ import { basekit, Component, ParamType } from '@lark-opdev/block-basekit-server-
 
 basekit.addAction({
   formItems: [
+    // 1. テキスト入力 (Input)
     {
-      itemId: 'text',
-      label: '入力テキスト',
+      itemId: 'textInput',
+      label: 'テキスト入力',
       required: true,
       component: Component.Input,
       componentProps: {
         mode: 'textarea',
-        placeholder: 'テキストを入力するか、参照列を選択してください',
+        placeholder: 'テキストを入力してください'
       }
     },
+
+    // 2. 日時選択 (DateTimePicker)
     {
-      itemId: 'transformType',
-      label: '変換タイプ',
+      itemId: 'dateTime',
+      label: '日時選択',
+      component: Component.DateTimePicker
+    },
+
+    // 3. ユーザー/グループ選択 (ContactPicker)
+    {
+      itemId: 'contact',
+      label: 'メンバー選択',
+      component: Component.ContactPicker,
+      componentProps: {
+        supportTypes: ['user', 'group'],
+        mode: 'multiple',
+        placeholder: 'メンバーを選択してください'
+      }
+    },
+
+    // 4. 折りたたみセクション (Collapse)
+    {
+      itemId: 'collapseSection',
+      component: Component.Collapse,
+      componentProps: {
+        displayItems: ['hiddenField1', 'hiddenField2']
+      }
+    },
+
+    // 5. チェックボックス (Checkbox)
+    {
+      itemId: 'checkbox',
+      label: '確認チェック',
+      component: Component.Checkbox
+    },
+
+    // 6. 情報表示 (Tips)
+    {
+      itemId: 'tips',
+      component: Component.Tips,
+      componentProps: {
+        message: '入力時の注意事項をここに表示します'
+      }
+    },
+
+    // 7. 単一選択 (SingleSelect)
+    {
+      itemId: 'singleSelect',
+      label: '選択してください',
       required: true,
       component: Component.SingleSelect,
       componentProps: {
         options: [
-          {
-            label: '大文字に変換',
-            value: 'toUpperCase',
-          },
-          {
-            label: '小文字に変換',
-            value: 'toLowerCase',
-          },
+          { label: '選択肢1', value: '1' },
+          { label: '選択肢2', value: '2' },
+          { label: '選択肢3', value: '3' }
         ]
+      }
+    },
+
+    // 8. 複数選択 (MultipleSelect)
+    {
+      itemId: 'multiSelect',
+      label: '複数選択',
+      component: Component.MultipleSelect,
+      componentProps: {
+        options: [
+          { label: 'タグ1', value: 'tag1' },
+          { label: 'タグ2', value: 'tag2' },
+          { label: 'タグ3', value: 'tag3' }
+        ]
+      }
+    },
+
+    // 9. 添付ファイル (Attachment)
+    {
+      itemId: 'attachment',
+      label: 'ファイル添付',
+      component: Component.Attachment,
+      componentProps: {
+        placeholder: 'ファイルを選択してください'
+      }
+    },
+
+    // 10. ラジオボタン (Radio)
+    {
+      itemId: 'radio',
+      label: 'ラジオ選択',
+      component: Component.Radio,
+      componentProps: {
+        options: [
+          { value: 'option1', label: 'オプション1' },
+          { value: 'option2', label: 'オプション2' }
+        ]
+      }
+    },
+
+    // 11. キーバリューペア (KeyValuePair)
+    {
+      itemId: 'keyValue',
+      label: 'キーバリューペア',
+      component: Component.KeyValuePair,
+      componentProps: {
+        itemsLimit: 5,
+        addText: 'ペアを追加',
+        keyText: 'キー名',
+        valueText: '値'
       }
     }
   ],
-  // 実行ロジックを定義
+
+  // 実行ロジック
   execute: async function(args, context) {
-    // 実行時のパラメータargsから入力テキストtextと変換タイプtransformTypeを取得
-    const { text = '', transformType } = args;
-    // 変換タイプに基づいて入力テキストを大文字/小文字に変換
-    const outputText = transformType === 'toUpperCase'
-      ? text.toUpperCase()
-      : text.toLowerCase();
-    // 変換後のテキストを返却
+    console.log('フォーム入力値:', args);
+    
+    // 各フィールドの値を取得
+    const {
+      textInput,
+      dateTime,
+      contact,
+      checkbox,
+      singleSelect,
+      multiSelect,
+      attachment,
+      radio,
+      keyValue
+    } = args;
+
+    // 処理結果を整形
+    const result = {
+      textInput,
+      dateTime: new Date(dateTime).toLocaleString('ja-JP'),
+      contact: Array.isArray(contact) ? contact.join(', ') : contact,
+      checkbox: checkbox ? '✓' : '✗',
+      singleSelect,
+      multiSelect: Array.isArray(multiSelect) ? multiSelect.join(', ') : multiSelect,
+      attachment: Array.isArray(attachment) ? `${attachment.length}個のファイル` : '添付なし',
+      radio,
+      keyValue: Array.isArray(keyValue) ? 
+        keyValue.map(pair => `${pair.key}: ${pair.value}`).join('\n') : 
+        'データなし'
+    };
+
     return {
-      text: outputText,
+      result: JSON.stringify(result, null, 2)
     };
   },
-  // ノードの出力パラメータを定義
+
+  // 出力パラメータ定義
   resultType: {
-    // オブジェクトとして返却することを宣言
     type: ParamType.Object,
     properties: {
-        // textプロパティを宣言
-        text: {
-          // textフィールドの型をstringとして宣言
-          type: ParamType.String,
-          // ノードUIに表示するラベルを「変換結果」として宣言
-          label: '変換結果',
-        },
+      result: {
+        type: ParamType.String,
+        label: '処理結果'
+      }
     }
   }
 });
