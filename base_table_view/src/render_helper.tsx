@@ -245,6 +245,10 @@ const renderDefault =
       if (obj.type === 'application/pdf') {
         return <>{obj.token}</>;
       }
+      // 数式の場合は数式を表示
+      if (obj.type === 'text') {
+        return <>{obj.text}</>;
+      }
       return <>{JSON.stringify(value)}</>;
     }
     return <>{String(value)}</>;
