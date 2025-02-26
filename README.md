@@ -1,179 +1,160 @@
-# Lark Custom Bot with Gemini AI
-
-Lark（Feishu）メッセージングプラットフォーム上で動作する、Google Gemini AIを活用したカスタムボットアプリケーションです。
+# Lark Bitable カスタムアプリケーション
 
 ## 目次
 
 - [プロジェクト概要](#プロジェクト概要)
-- [アーキテクチャ](#アーキテクチャ)
-- [セットアップ手順](#セットアップ手順)
-- [開発ガイド](#開発ガイド)
-- [デプロイメント](#デプロイメント)
+- [機能概要](#機能概要)
+- [技術スタック](#技術スタック)
+- [プロジェクト構成](#プロジェクト構成)
+- [開発環境セットアップ](#開発環境セットアップ)
+- [コーディング規約](#コーディング規約)
+- [デプロイ方法](#デプロイ方法)
 - [トラブルシューティング](#トラブルシューティング)
 
 ## プロジェクト概要
 
-### 目的
-このプロジェクトは、Larkチャットプラットフォーム上でGoogle Gemini AIの機能を活用し、ユーザーからの質問に自動で応答するインテリジェントなチャットボットを提供します。
+このプロジェクトは、Lark（飛書）プラットフォーム上でBitable（多維表格）と連携するカスタムアプリケーションを開発するためのテンプレートです。Bitableのデータを取得・表示したり、カスタムビューを実装したりするための機能を提供します。
 
-### 主要機能
-- Larkメッセージの受信と処理
-- Google Gemini AIによる自然言語処理
-- メッセージの重複処理防止
-- Google Cloud Storageを使用した状態管理
+## 機能概要
 
-## アーキテクチャ
+- テーブルデータの取得と表示
+- カスタムビューの実装
+- レコード詳細表示
+- セル値のカスタムレンダリング
+- 各種フィールドタイプのサポート
+- 自動化アクションの登録と実行
 
-### システム構成図
+## 技術スタック
 
-```mermaid
-graph TD
-    A[Larkユーザー] -->|メッセージ送信| B[Webhook API]
-    B -->|イベント処理| C[メッセージハンドラー]
-    C -->|重複チェック| D[GCS Storage]
-    C -->|AI処理| E[Gemini AI API]
-    E -->|応答生成| C
-    C -->|応答送信| F[Lark API]
-    F -->|メッセージ表示| A
+### フロントエンド
+- React 18
+- TypeScript
+- Semi UI（@douyinfe/semi-ui）
+- Lark Bitable API（@lark-opdev/block-bitable-api）
+
+### ビルドツール
+- Webpack
+- esbuild-loader
+- ESLint
+- Prettier
+
+## プロジェクト構成
+
+```
+.
+├── config/                  # webpack設定ファイルディレクトリ
+│   └── webpack.config.js    # webpack設定ファイル
+├── public/                  # 静的ファイルディレクトリ
+│   └── index.html           # HTMLテンプレート
+├── src/                     # ソースコードディレクトリ
+│   ├── components/          # Reactコンポーネント
+│   ├── App.tsx              # メインコンポーネント
+│   ├── index.tsx            # エントリーポイント
+│   ├── render_helper.tsx    # セル値のレンダリング関数
+│   └── utils.ts             # ユーティリティ関数
+├── block.json               # アプリケーションのメタ情報
+├── package.json             # プロジェクト依存関係と設定
+├── tsconfig.json            # TypeScript設定
+├── .eslintrc.js             # ESLint設定
+├── .prettierrc.js           # Prettier設定
+└── README.md                # プロジェクトドキュメント
 ```
 
-### コンポーネント構成
-
-```mermaid
-graph LR
-    A[server.ts] -->|Webhook処理| B[webhook.ts]
-    B -->|AI処理| C[gemini.ts]
-    B -->|メッセージ送信| D[lark.ts]
-    B -->|状態管理| E[storage.ts]
-    F[config.ts] -->|設定提供| A
-    F -->|設定提供| B
-    F -->|設定提供| C
-    F -->|設定提供| D
-    F -->|設定提供| E
-```
-
-## セットアップ手順
+## 開発環境セットアップ
 
 ### 前提条件
-- Node.js (v18.0.0以上)
-- npm (最新版推奨)
-- Google Cloud Platformアカウント
-- Lark開発者アカウント
+- Node.js 14.0.0 以上
+- npm、yarn、または pnpm
 
-### 環境構築
+### インストール手順
 
-1. リポジトリのクローン
+1. リポジトリをクローン
 ```bash
 git clone [repository-url]
-cd lark-custom-bot
+cd [project-directory]
 ```
 
-2. 依存パッケージのインストール
+2. 依存パッケージをインストール
 ```bash
 npm install
+# または
+yarn install
+# または
+pnpm install
 ```
 
-3. 環境変数の設定
-\`.env\`ファイルを作成し、以下の変数を設定：
+3. 開発サーバーを起動
 ```bash
-PORT=8080
-GENAI_API_KEY=your_gemini_api_key_here
-LARK_APP_ID=your_lark_app_id_here
-LARK_APP_SECRET=your_lark_app_secret_here
-GOOGLE_APPLICATION_CREDENTIALS=path/to/your/service-account-key.json
-```
-
-4. ビルドと実行
-```bash
-# 開発モード
 npm run dev
-
-# プロダクションビルド
-npm run build
-npm start
+# または
+yarn dev
+# または
+pnpm dev
 ```
 
-## 開発ガイド
+## コーディング規約
 
-### 技術スタック
-- **言語**: TypeScript
-- **ランタイム**: Node.js
-- **フレームワーク**: Express.js
-- **外部サービス**:
-  - Google Gemini AI
-  - Lark API
-  - Google Cloud Storage
+### 命名規則
+- コンポーネントファイル: PascalCase（例: `TableView.tsx`）
+- ユーティリティファイル: camelCase（例: `utils.ts`）
+- 定数: UPPER_SNAKE_CASE（例: `MAX_ITEMS`）
+- 変数・関数: camelCase（例: `getUserData`）
 
-### プロジェクト構造
-```
-src/
-├── server.ts      # アプリケーションのエントリーポイント
-├── webhook.ts     # Webhookハンドラー
-├── gemini.ts      # Gemini AI統合
-├── lark.ts        # Lark API統合
-├── storage.ts     # GCS状態管理
-├── config.ts      # 設定管理
-└── types.ts       # 型定義
-```
+### TypeScript
+- `any` 型の使用を避け、明示的な型定義を使用する
+- インターフェースには `I` プレフィックスを付ける（例: `ITableData`）
+- 型のみのインポートには `import type` を使用する
 
-### 開発フロー
-1. 機能ブランチの作成
-2. コードの実装
-3. ユニットテストの作成と実行
-4. コードレビュー
-5. マージとデプロイ
+### React コンポーネント
+- 関数コンポーネントとアロー関数を使用する
+- コンポーネントには JSDoc コメントを付ける
+- Props には明示的なインターフェースを定義する
 
-## デプロイメント
+### スタイリング
+- Semi UI コンポーネントを優先して使用する
+- スタイルはコンポーネント内でインラインで定義する
+- 複雑なスタイルはスタイルオブジェクトとして分離する
 
-### 本番環境へのデプロイ
-1. 環境変数の設定
-2. ビルド実行
-3. サービスの起動
+## デプロイ方法
 
+1. プロダクションビルドを作成
 ```bash
 npm run build
-npm start
+# または
+yarn build
+# または
+pnpm build
 ```
 
-### 監視とログ
-- アプリケーションログは標準出力に出力
-- Google Cloud Loggingで集中管理
+2. Larkプラットフォームにアップロード
+```bash
+npm run upload
+# または
+yarn upload
+# または
+pnpm upload
+```
 
 ## トラブルシューティング
 
 ### よくある問題と解決方法
-1. Webhook接続エラー
-   - Lark設定の確認
-   - ネットワーク接続の確認
 
-2. Gemini API エラー
-   - APIキーの有効性確認
-   - クォータ制限の確認
+1. Bitableへの接続エラー
+   - Lark開発者アカウントの権限を確認
+   - アプリIDとシークレットが正しいか確認
 
-3. ストレージエラー
-   - GCP認証情報の確認
-   - バケットアクセス権限の確認
+2. ビルドエラー
+   - Node.jsのバージョンが互換性があるか確認（v14以上推奨）
+   - 依存関係が正しくインストールされているか確認
+
+3. レンダリングの問題
+   - ブラウザのコンソールでエラーを確認
+   - Reactのdev toolsを使用してコンポーネント階層を確認
+
+4. APIの制限
+   - Bitableに対するAPI呼び出しの頻度を制限する
+   - 大規模なデータセットを処理する場合はページネーションを使用する
 
 ## ライセンス
-MIT License
 
-## コントリビューション
-プロジェクトへの貢献を歓迎します。以下の手順で貢献できます：
-
-1. Issueの作成
-2. フォークとブランチの作成
-3. 変更の実装
-4. プルリクエストの作成
-
----
-
-## 補足情報
-
-### 関連リソース
-- [Lark開発者ドキュメント](https://open.larksuite.com/document/)
-- [Google Gemini AI ドキュメント](https://ai.google.dev/docs)
-- [Google Cloud Storage ドキュメント](https://cloud.google.com/storage/docs)
-
-### 連絡先
-- テクニカルサポート: [担当者のメールアドレス]
-- プロジェクト管理者: [管理者のメールアドレス]
+このプロジェクトは [MITライセンス](LICENSE) のもとで公開されています。
