@@ -2,7 +2,10 @@ import {
   IOpenCheckbox,
   IOpenSegment,
   IOpenUser,
-  bitable
+  bitable,
+  FieldType,
+  IWidgetTable,
+  IFieldMeta,
 } from "@lark-opdev/block-bitable-api";
 
 /**
@@ -10,17 +13,31 @@ import {
  * フィールドIDはテンプレートと一致することが保証されています
  */
 
-/** タスク説明フィールドID */
-const descriptionFieldId = "fldaxqIJ1m";
+/**
+ * フィールド情報を取得する
+ * @param table テーブルインスタンス
+ * @returns フィールド情報の配列
+ */
+async function getFieldMetaList(table: IWidgetTable) {
+  const fields = await table.getFieldMetaList();
+  return fields.map(field => ({
+    id: field.id,
+    name: field.name,
+    type: field.type,
+  }));
+}
 
-/** タスク担当者フィールド名 */
-const userFieldName = "任务执行人";
-
-/** 完了フラグフィールドID */
-const completedFieldId = "fld9cvGzic";
-
-/** TODO: 期限超過フラグフィールドIDの実装 */
-// const exceedingFieldId = "todo"
+/**
+ * フィールド値を取得する
+ * @param table テーブルインスタンス
+ * @param fieldId フィールドID
+ * @param recordId レコードID
+ * @returns フィールド値
+ */
+async function getFieldValue(table: IWidgetTable, fieldId: string, recordId: string) {
+  const value = await table.getCellValue(fieldId, recordId);
+  return value;
+}
 
 /**
  * ユーザー情報から表示名を取得する
@@ -47,46 +64,50 @@ function getDescription(descriptionValue: IOpenSegment[] | null) {
 }
 
 /**
- * 現在選択されているタスクの情報を取得する
- * @returns タスク情報（説明、担当者名、完了状態）
+ * 現在選択されているレコードの情報を取得する
+ * @returns レコード情報
  * @throws 選択状態の取得に失敗した場合
  */
-export async function getCurrentTask() {
+export async function getCurrentRecord() {
   // 1. 選択されているテーブルとレコードを取得
   const { tableId, recordId } = await bitable.base.getSelection();
   if (!tableId || !recordId) throw new Error("選択状態の取得に失敗しました");
+  
   const table = await bitable.base.getTableById(tableId);
 
-  // 2. 各フィールドの値を取得
-  const completedValue = (await table.getCellValue(
-    completedFieldId,
-    recordId
-  )) as IOpenCheckbox;
-  const userField = await table.getFieldByName(userFieldName);
-  const userValue = (await table.getCellValue(
-    userField.id,
-    recordId
-  )) as IOpenUser[];
-  const descriptionValue = (await table.getCellValue(
-    descriptionFieldId,
-    recordId
-  )) as IOpenSegment[];
+  // 2. フィールド情報を取得
+  const fieldMetas = await getFieldMetaList(table);
 
-  // TODO: 期限超過フラグの取得処理
-  // 単一選択の値型は IOpenSingleSelect
-  // const exceedingValue = (await table.getCellValue(exceedingFieldId, recordId)) as IOpenSingleSelect;
+  // 3. 各フィールドの値を取得
+  const fields = await Promise.all(
+    fieldMetas.map(async (field) => ({
+      ...field,
+      value: await getFieldValue(table, field.id, recordId)
+    }))
+  );
 
-  // TODO: exceedingValue を選択されたオプションの文字列に変換
-  // const exceedingText = doYourCustomTransform(exceedingValue)
-
-  // 3. セル構造をビジネスロジック用のデータに変換
+  // 4. レコード情報を返却
   return {
-    description: getDescription(descriptionValue),
-    userName: getUserName(userValue),
-    completed: completedValue,
-    // TODO: 期限超過情報の返却
-    // exceeding: exceedingText
+    recordId,
+    fields,
+    table // テーブルインスタンスも返却（編集時に使用）
   };
+}
+
+/**
+ * フィールド値を更新する
+ * @param table テーブルインスタンス
+ * @param fieldId フィールドID
+ * @param recordId レコードID
+ * @param value 新しい値
+ */
+export async function updateFieldValue(
+  table: IWidgetTable,
+  fieldId: string,
+  recordId: string,
+  value: any
+) {
+  await table.setCellValue(fieldId, recordId, value);
 }
 
 /**
@@ -100,6 +121,13 @@ export async function setCompleted(completed: boolean) {
   if (!tableId || !recordId) throw new Error("選択状態の取得に失敗しました");
   const table = await bitable.base.getTableById(tableId);
 
+  // フィールド情報を動的に取得
+  const fields = await getFieldMetaList(table);
+
   // 2. ビジネスデータをセル構造に変換して書き込み
-  table.setCellValue(completedFieldId, recordId, completed as IOpenCheckbox);
+  for (const field of fields) {
+    if (field.type === FieldType.Checkbox) {
+      await table.setCellValue(field.id, recordId, completed as IOpenCheckbox);
+    }
+  }
 }

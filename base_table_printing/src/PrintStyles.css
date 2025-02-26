@@ -1,0 +1,164 @@
+/* 通常表示時のスタイル */
+.printable-content {
+  display: block;
+  box-sizing: border-box;
+}
+
+.print-controls {
+  margin-bottom: 20px;
+  background-color: #f9f9f9;
+  padding: 16px;
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.print-form-section {
+  margin-bottom: 20px;
+}
+
+.print-form-section h4 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e0e0e0;
+  color: #333;
+  font-weight: 500;
+}
+
+.print-form-subsection {
+  margin: 12px 0;
+  padding: 12px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+}
+
+.print-form-subsection h5 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  color: #555;
+}
+
+.print-preview-container {
+  margin: 20px;
+}
+
+/* 印刷時のスタイル */
+@media print {
+  /* 印刷時に不要な要素を非表示 */
+  .print-controls,
+  .semi-navigation,
+  button,
+  .non-printable {
+    display: none !important;
+  }
+  
+  /* 全体の印刷設定 */
+  body {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* テーブル関連のスタイル */
+  .printable-table {
+    width: 100%;
+    border-collapse: collapse;
+    page-break-inside: auto;
+  }
+  
+  /* テーブルヘッダーを各ページで繰り返す */
+  .semi-table-thead {
+    display: table-header-group;
+  }
+  
+  /* 行の改ページ防止（可能な限り） */
+  .semi-table-row {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  
+  /* セル内テキストの折り返し */
+  .printable-cell {
+    max-width: 150px;
+    word-wrap: break-word;
+    white-space: normal !important;
+    overflow: visible !important;
+  }
+  
+  .print-cell-content {
+    white-space: normal;
+    word-break: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  /* ヘッダーとフッター */
+  .print-header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5mm;
+  }
+  
+  .print-footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    border-top: 1px solid #ddd;
+    padding-top: 2mm;
+  }
+  
+  /* ページ番号の自動カウンター */
+  .page-counter:after {
+    content: counter(page) " / " counter(pages);
+  }
+  
+  /* 用紙設定 */
+  .portrait {
+    width: 210mm; /* A4幅 */
+  }
+  
+  .landscape {
+    width: 297mm; /* A4高さ */
+  }
+  
+  /* テーブルの最大高さ（ヘッダー・フッター考慮） */
+  .print-table-container {
+    margin-top: 20mm;
+    margin-bottom: 10mm;
+  }
+  
+  /* ページ区切り */
+  .page-break {
+    page-break-after: always;
+    break-after: page;
+  }
+  
+  /* 印刷時のコンテンツ欄 */
+  .printable-content {
+    background-color: white;
+    box-shadow: none;
+  }
+}
+
+/* 印刷プレビュースタイル */
+.print-preview {
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  margin: 20px 0;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* 印刷ボタンスタイル */
+.print-button-container {
+  margin: 12px 0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.print-button {
+  margin-left: auto;
+} 
