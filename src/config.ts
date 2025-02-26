@@ -5,7 +5,6 @@ dotenv.config();
 export const CONFIG = {
   PORT: process.env.PORT || 8080,
   OPENAI_API_KEY: process.env.OPENAI_API_KEY || '',
-  GENAI_API_KEY: process.env.GENAI_API_KEY || '',
   LARK_APP_ID: process.env.LARK_APP_ID || '',
   LARK_APP_SECRET: process.env.LARK_APP_SECRET || '',
   BITABLE_APP_TOKEN: process.env.LARK_BITABLE_APP_TOKEN || '',

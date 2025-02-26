@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { loadProcessedMessages, saveProcessedMessages } from './storage';
 import { sendLarkMessage } from './lark/sendMessage';
 import { getOpenAIResponse } from './openai';
 import { getBitableTables, formatTableList, getBitableRecords, formatRecordList } from './lark/base';
