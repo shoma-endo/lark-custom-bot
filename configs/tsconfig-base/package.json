@@ -1,0 +1,6 @@
+{
+  "name": "@lark-plugins/tsconfig-base",
+  "version": "1.0.0",
+  "private": true,
+  "main": "tsconfig.json"
+} 

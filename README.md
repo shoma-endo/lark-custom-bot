@@ -1,160 +1,201 @@
-# Lark Bitable カスタムアプリケーション
+# Larkプラグインプロジェクト（モノレポ）
 
-## 目次
+## 1. プロジェクト概要
 
-- [プロジェクト概要](#プロジェクト概要)
-- [機能概要](#機能概要)
-- [技術スタック](#技術スタック)
-- [プロジェクト構成](#プロジェクト構成)
-- [開発環境セットアップ](#開発環境セットアップ)
-- [コーディング規約](#コーディング規約)
-- [デプロイ方法](#デプロイ方法)
-- [トラブルシューティング](#トラブルシューティング)
+このプロジェクトは、Larkプラットフォーム向けの各種カスタムプラグインを統合的に管理・開発するためのモノレポ構造を採用しています。Larkの基本機能を拡張し、業務効率化やユーザーエクスペリエンス向上を目的としています。
 
-## プロジェクト概要
+### 背景と目的
 
-このプロジェクトは、Lark（飛書）プラットフォーム上でBitable（多維表格）と連携するカスタムアプリケーションを開発するためのテンプレートです。Bitableのデータを取得・表示したり、カスタムビューを実装したりするための機能を提供します。
+Larkは多機能なコラボレーションプラットフォームですが、特定の業務ニーズに対応するためにはカスタムプラグインが必要です。このプロジェクトでは、複数のプラグインを効率的に開発・保守するためのモノレポ構造を採用し、コード共有と一貫性の確保を実現しています。
 
-## 機能概要
+### 現状
 
-- テーブルデータの取得と表示
-- カスタムビューの実装
-- レコード詳細表示
-- セル値のカスタムレンダリング
-- 各種フィールドタイプのサポート
-- 自動化アクションの登録と実行
+現在、テーブルビューとレコードビューの2つのプラグインが実装されており、今後テーブル印刷やドキュメントビューなどのプラグインを追加予定です。モノレポへの移行が完了し、開発環境が整備された状態です。
 
-## 技術スタック
+## 2. プロジェクト構造
+
+```mermaid
+graph TD
+    A[lark-plugins] --> B[packages/]
+    A --> C[configs/]
+    A --> D[scripts/]
+    
+    B --> E[core/]
+    B --> F[table-view/]
+    B --> G[record-view/]
+    B --> H[table-printing/ 予定]
+    B --> I[docs-view/ 予定]
+    
+    C --> J[eslint-config/]
+    C --> K[prettier-config/]
+    C --> L[tsconfig-base/]
+    C --> M[webpack-config/]
+    
+    D --> N[build.js]
+    D --> O[clean.js]
+    D --> P[test.js]
+    
+    E --> Q[型定義/Zodスキーマ]
+    E --> R[ユーティリティ関数]
+    
+    F --> S[テーブルビュー機能]
+    G --> T[レコードビュー機能]
+```
+
+### ディレクトリ構成
+
+- `packages/`: 各プラグインとコアライブラリ
+  - `core/`: 共通コアライブラリ（型定義、ユーティリティ関数）
+  - `table-view/`: テーブルビュープラグイン
+  - `record-view/`: レコードビュープラグイン
+  - `table-printing/`: テーブル印刷プラグイン（予定）
+  - `docs-view/`: ドキュメントビュープラグイン（予定）
+
+- `configs/`: 共通設定ファイル
+  - `eslint-config/`: ESLint設定
+  - `prettier-config/`: Prettier設定
+  - `tsconfig-base/`: 基本TypeScript設定
+  - `webpack-config/`: 共通Webpack設定
+
+- `scripts/`: 共通スクリプト
+  - `build.js`: ビルドスクリプト
+  - `clean.js`: クリーンスクリプト
+  - `test.js`: テスト実行スクリプト
+
+## 3. 技術スタック
+
+### コア技術
+
+- **言語**: TypeScript
+- **ランタイム**: Node.js (>=18.0.0)
+- **パッケージマネージャ**: pnpm
+- **モノレポ管理**: pnpmワークスペース
 
 ### フロントエンド
-- React 18
-- TypeScript
-- Semi UI（@douyinfe/semi-ui）
-- Lark Bitable API（@lark-opdev/block-bitable-api）
 
-### ビルドツール
-- Webpack
-- esbuild-loader
-- ESLint
-- Prettier
+- **UI ライブラリ**: React 18
+- **UI コンポーネント**: Semi UI (@douyinfe/semi-ui)
+- **状態管理**: React Hooks
 
-## プロジェクト構成
+### ビルド・開発ツール
 
-```
-.
-├── config/                  # webpack設定ファイルディレクトリ
-│   └── webpack.config.js    # webpack設定ファイル
-├── public/                  # 静的ファイルディレクトリ
-│   └── index.html           # HTMLテンプレート
-├── src/                     # ソースコードディレクトリ
-│   ├── components/          # Reactコンポーネント
-│   ├── App.tsx              # メインコンポーネント
-│   ├── index.tsx            # エントリーポイント
-│   ├── render_helper.tsx    # セル値のレンダリング関数
-│   └── utils.ts             # ユーティリティ関数
-├── block.json               # アプリケーションのメタ情報
-├── package.json             # プロジェクト依存関係と設定
-├── tsconfig.json            # TypeScript設定
-├── .eslintrc.js             # ESLint設定
-├── .prettierrc.js           # Prettier設定
-└── README.md                # プロジェクトドキュメント
-```
+- **トランスパイラ**: TypeScript, esbuild-loader
+- **バンドラ**: Webpack 5
+- **リンター**: ESLint
+- **フォーマッター**: Prettier
 
-## 開発環境セットアップ
+### API・データ処理
 
-### 前提条件
-- Node.js 14.0.0 以上
-- npm、yarn、または pnpm
+- **API クライアント**: @lark-opdev/block-bitable-api
+- **スキーマ検証**: Zod
+- **ユーティリティ**: lodash-es
 
-### インストール手順
+## 4. 主要コンポーネントとその機能
 
-1. リポジトリをクローン
+### コアライブラリ (@lark-plugins/core)
+
+共通の型定義とユーティリティ関数を提供します。
+
+- **型定義**: Zod スキーマによる堅牢な型システム
+  - プラグイン設定
+  - フィールド・ビュー・レコードの型定義
+  - イベント型定義
+- **ユーティリティ関数**:
+  - フィールド操作関数
+  - レコード操作関数
+  - 文字列変換関数
+
+### テーブルビュープラグイン (@lark-plugins/table-view)
+
+Larkのテーブルデータをカスタムビューで表示します。
+
+- テーブル選択・読み込み
+- フィールド情報取得
+- レコード一覧表示
+- データの更新機能
+
+### レコードビュープラグイン (@lark-plugins/record-view)
+
+Larkの個別レコードをカスタムビューで表示します。
+
+- レコード選択・読み込み
+- フィールド情報取得
+- レコード詳細表示
+- レコード選択変更検知
+
+## 5. 開発プロセス
+
+### 環境セットアップ
+
 ```bash
-git clone [repository-url]
-cd [project-directory]
-```
-
-2. 依存パッケージをインストール
-```bash
-npm install
-# または
-yarn install
-# または
+# 依存パッケージのインストール
 pnpm install
+
+# 開発環境のビルド
+pnpm run build
 ```
 
-3. 開発サーバーを起動
+### 開発コマンド
+
+- **ビルド**: `pnpm run build`
+- **テスト**: `pnpm run test`
+- **リント**: `pnpm run lint`
+- **フォーマット**: `pnpm run format`
+- **クリーンアップ**: `pnpm run clean`
+
+### 個別パッケージの開発
+
 ```bash
-npm run dev
-# または
-yarn dev
-# または
-pnpm dev
+# 例: テーブルビュープラグインの開発サーバー起動
+cd packages/table-view
+pnpm run dev
 ```
 
-## コーディング規約
+### デプロイ
 
-### 命名規則
-- コンポーネントファイル: PascalCase（例: `TableView.tsx`）
-- ユーティリティファイル: camelCase（例: `utils.ts`）
-- 定数: UPPER_SNAKE_CASE（例: `MAX_ITEMS`）
-- 変数・関数: camelCase（例: `getUserData`）
-
-### TypeScript
-- `any` 型の使用を避け、明示的な型定義を使用する
-- インターフェースには `I` プレフィックスを付ける（例: `ITableData`）
-- 型のみのインポートには `import type` を使用する
-
-### React コンポーネント
-- 関数コンポーネントとアロー関数を使用する
-- コンポーネントには JSDoc コメントを付ける
-- Props には明示的なインターフェースを定義する
-
-### スタイリング
-- Semi UI コンポーネントを優先して使用する
-- スタイルはコンポーネント内でインラインで定義する
-- 複雑なスタイルはスタイルオブジェクトとして分離する
-
-## デプロイ方法
-
-1. プロダクションビルドを作成
 ```bash
-npm run build
-# または
-yarn build
-# または
-pnpm build
+# ビルド後、Larkプラットフォームにアップロード
+cd packages/<plugin-name>
+pnpm run upload
 ```
 
-2. Larkプラットフォームにアップロード
-```bash
-npm run upload
-# または
-yarn upload
-# または
-pnpm upload
-```
+## 6. モノレポの利点と運用上の注意点
 
-## トラブルシューティング
+### 利点
 
-### よくある問題と解決方法
+- コード共有と再利用の促進
+- 一貫した開発環境と設定
+- 依存関係の統一管理
+- パッケージ間の連携が容易
 
-1. Bitableへの接続エラー
-   - Lark開発者アカウントの権限を確認
-   - アプリIDとシークレットが正しいか確認
+### 注意点
 
-2. ビルドエラー
-   - Node.jsのバージョンが互換性があるか確認（v14以上推奨）
-   - 依存関係が正しくインストールされているか確認
+- pnpmのworkspace機能への理解が必要
+- ビルドプロセスが複雑になる場合がある
+- 変更が複数のパッケージに影響する可能性
 
-3. レンダリングの問題
-   - ブラウザのコンソールでエラーを確認
-   - Reactのdev toolsを使用してコンポーネント階層を確認
+## 7. トラブルシューティング
 
-4. APIの制限
-   - Bitableに対するAPI呼び出しの頻度を制限する
-   - 大規模なデータセットを処理する場合はページネーションを使用する
+### よくある問題と解決策
 
-## ライセンス
+- **ビルドエラー**: `pnpm run clean` で一度クリーンアップしてから再度ビルド
+- **依存関係エラー**: `pnpm install` で依存関係を更新
+- **Webpackの設定問題**: 各パッケージの `config/webpack.config.js` で個別に設定を上書き
 
-このプロジェクトは [MITライセンス](LICENSE) のもとで公開されています。
+## 8. 将来の展望
+
+- テーブル印刷プラグインの実装
+- ドキュメントビュープラグインの実装
+- CI/CDパイプラインの構築
+- テストカバレッジの向上
+
+## 9. 参考資料・リンク
+
+- [Lark 開発者ドキュメント](https://www.larksuite.com/en_us/developer/docs)
+- [pnpm Workspaces](https://pnpm.io/workspaces)
+- [TypeScript ドキュメント](https://www.typescriptlang.org/docs/)
+- [Zod ドキュメント](https://zod.dev/)
+
+---
+
+このドキュメントは、プロジェクトの進行に伴い随時更新されます。質問や改善提案は、チームリーダーまでお寄せください。 
